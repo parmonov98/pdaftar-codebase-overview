@@ -14,14 +14,18 @@
 
 This is **not** the pDaftar source code. It is a **structural overview** of it.
 
-- Every directory here mirrors a real directory in the production repositories —
-  **1,071 of them**, across the backend and the mobile client.
+- Every directory here mirrors a real directory in the production repositories.
+  The tree is **abridged by depth** to stay readable — the backend to 3 levels,
+  the mobile client to 5 — giving **498 scaffolded directories** out of the
+  **1,071** that exist in production. Nothing is invented; the deeper nesting is
+  simply not scaffolded.
 - The **source contents are withheld.** Directories are empty, held open by
   `.gitkeep` files (git cannot track an empty directory).
-- Two manifests — **[`backend/STRUCTURE.md`](backend/STRUCTURE.md)** and
-  **[`mobile/STRUCTURE.md`](mobile/STRUCTURE.md)** — record, for each directory,
-  how many source files and lines it actually contains in production. **895
-  directories with real measured counts.**
+- The manifests are **not** abridged. **[`backend/STRUCTURE.md`](backend/STRUCTURE.md)**
+  and **[`mobile/STRUCTURE.md`](mobile/STRUCTURE.md)** record every directory
+  that holds source — **895 of them**, at full depth — with how many files and
+  lines each actually contains in production. The folder tree is the summary;
+  the manifests are the complete record.
 - **One module is included in full** —
   [`backend/app/Services/SMS/SmsPartsCalculatorService.php`](backend/app/Services/SMS/SmsPartsCalculatorService.php) —
   so the actual code can be judged, not just its shape.
@@ -45,7 +49,8 @@ estimated. Each manifest includes the command to reproduce its counts.
 | Lines of source | 250,722 | 298,899 | **549,621** |
 | — hand-written | 250,722 | 228,248 | **478,970** |
 | — generated (committed codegen) | — | 70,651 | **70,651** |
-| Directories | 477 | 594 | **1,071** |
+| Directories (in production) | 477 | 594 | **1,071** |
+| — scaffolded in this repo | 212 | 286 | **498** |
 | Test files | 190 | 35 | **225** |
 | Lines of test code | 29,681 | 3,671 | **33,352** |
 

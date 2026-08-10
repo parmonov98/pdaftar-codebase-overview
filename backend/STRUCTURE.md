@@ -1,9 +1,14 @@
 # Directory manifest
 
-Every directory in this repository mirrors a real directory in the pDaftar
-backend. The table below records how many PHP files and lines each one
-actually contains in the production repository. Source contents are withheld;
-the counts are what the folders in this repo stand in for.
+This table is the **complete** record: every directory in the pDaftar backend
+that holds PHP, at full depth, with how many files and lines it actually
+contains in production. Source contents are withheld; the counts are what the
+folders stand in for.
+
+Note that `backend/` in this repository scaffolds only the first **3 levels**
+of the tree (212 of 477 directories), to keep it readable. This table is not
+abridged — it lists directories at every depth, including ones with no folder
+scaffolded above them.
 
 Generated from the production tree. Counts cover `*.php` only, first-party
 code only — no `vendor/`, no framework code.
