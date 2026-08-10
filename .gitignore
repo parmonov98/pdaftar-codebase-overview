@@ -1,0 +1,17 @@
+# PHP / Laravel
+/vendor/
+/node_modules/
+.env
+.env.*
+!.env.example
+/storage/*.key
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
