@@ -4,11 +4,6 @@ This table is the **complete** record: every directory in the pDaftar Flutter
 client that holds Dart, at full depth, with how many files and lines it
 actually contains in production. Source contents are withheld.
 
-Note that `mobile/` in this repository scaffolds only the first **5 levels** of
-the tree (286 of 594 directories), to keep it readable. This table is not
-abridged — it lists directories at every depth, including ones with no folder
-scaffolded above them.
-
 Counts cover `*.dart` only, first-party code only — no `.dart_tool/`,
 no `build/`, no pub dependencies.
 

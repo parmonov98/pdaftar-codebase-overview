@@ -14,31 +14,24 @@
 
 This is **not** the pDaftar source code. It is a **structural overview** of it.
 
-- Every directory here mirrors a real directory in the production repositories.
-  The tree is **abridged by depth** to stay readable — the backend to 3 levels,
-  the mobile client to 5 — giving **498 scaffolded directories** out of the
-  **1,071** that exist in production. Nothing is invented; the deeper nesting is
-  simply not scaffolded.
-- The **source contents are withheld.** Directories are empty, held open by
-  `.gitkeep` files (git cannot track an empty directory).
-- The manifests are **not** abridged. **[`backend/STRUCTURE.md`](backend/STRUCTURE.md)**
-  and **[`mobile/STRUCTURE.md`](mobile/STRUCTURE.md)** record every directory
+- The **source contents are withheld.** The directory architecture is recorded
+  in two manifests, **[`backend/STRUCTURE.md`](backend/STRUCTURE.md)** and
+  **[`mobile/STRUCTURE.md`](mobile/STRUCTURE.md)**, which list every directory
   that holds source — **895 of them**, at full depth — with how many files and
-  lines each actually contains in production. The folder tree is the summary;
-  the manifests are the complete record.
+  lines each actually contains in production. Nothing is invented.
 - **One module is included in full** —
   [`backend/app/Services/SMS/SmsPartsCalculatorService.php`](backend/app/Services/SMS/SmsPartsCalculatorService.php) —
   so the actual code can be judged, not just its shape.
 - **A second, larger module is published in full in its own repository:**
   **[pdaftar-shopping-list](https://github.com/parmonov98/pdaftar-shopping-list)** —
   a complete 11,200-line Flutter feature package, the real contents of
-  `mobile/packages/pdaftar_shopping_list/` in this tree.
+  `mobile/packages/pdaftar_shopping_list/` in production.
 
 The purpose is to make the scale and architecture of a closed-source commercial
 codebase verifiable to reviewers without publishing the codebase itself.
 
-**Nothing here is padded.** The folder trees are faithful copies of the real
-ones, and every number below was measured from the production trees, not
+**Nothing here is padded.** The manifests are faithful copies of the real
+trees, and every number below was measured from the production trees, not
 estimated. Each manifest includes the command to reproduce its counts.
 
 ## The system, in numbers
@@ -50,7 +43,6 @@ estimated. Each manifest includes the command to reproduce its counts.
 | — hand-written | 250,722 | 228,248 | **478,970** |
 | — generated (committed codegen) | — | 70,651 | **70,651** |
 | Directories (in production) | 477 | 594 | **1,071** |
-| — scaffolded in this repo | 212 | 286 | **498** |
 | Test files | 190 | 35 | **225** |
 | Lines of test code | 29,681 | 3,671 | **33,352** |
 
