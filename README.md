@@ -20,8 +20,9 @@ This is **not** the pDaftar source code. It is a **structural overview** of it.
   that holds source — **895 of them**, at full depth — with how many files and
   lines each actually contains in production. Nothing is invented.
 - **A sample of real files is published in full** — six backend services, two
-  complete Flutter feature packages and the app's localization strings in nine
-  languages — so the actual code can be judged, not just its shape. See
+  complete Flutter feature packages, the app's profile screen and its
+  localization strings in nine languages — so the actual code can be judged,
+  not just its shape. See
   [Published in full here](#published-in-full-here).
 - **A second, larger module is published in full in its own repository:**
   **[pdaftar-shopping-list](https://github.com/parmonov98/pdaftar-shopping-list)** —
@@ -503,6 +504,7 @@ The only edit is noted in the table.
 | [`backend/app/Services/HeifAuxReferenceSanitizer.php`](backend/app/Services/HeifAuxReferenceSanitizer.php) | 194 | Byte-level HEIF patch that makes iOS 18 photos readable by libheif 1.17 |
 | [`mobile/packages/pdaftar_sales_calc/`](mobile/packages/pdaftar_sales_calc/) | 5,617 | Multi-line sales calculator package — 25 Dart files, including tests |
 | [`mobile/packages/pdaftar_todo/`](mobile/packages/pdaftar_todo/) | 1,067 | Task list package — 13 Dart files |
+| [`mobile/lib/presantation/pages/profile/`](mobile/lib/presantation/pages/profile/) | 18,585 | The owner's profile and settings screen: account, wallet and SMS balance, referrals, devices, printers, notifications, theme and language — 83 Dart files; 1,115 of the lines are generated (`freezed`) |
 | [`mobile/lib/service/localization/l10n/`](mobile/lib/service/localization/l10n/) | — | The app's ARB string files: Uzbek, Russian, English, Karakalpak, Kazakh, Kyrgyz, Tajik, Turkish, Arabic |
 
 The third package, `pdaftar_shopping_list`, is published separately as
