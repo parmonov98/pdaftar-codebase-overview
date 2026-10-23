@@ -19,10 +19,10 @@ This is **not** the pDaftar source code. It is a **structural overview** of it.
   **[`mobile/STRUCTURE.md`](mobile/STRUCTURE.md)**, which list every directory
   that holds source — **895 of them**, at full depth — with how many files and
   lines each actually contains in production. Nothing is invented.
-- **A sample of real files is published in full** — six backend services, two
-  complete Flutter feature packages, the app's profile screen and its
-  localization strings in nine languages — so the actual code can be judged,
-  not just its shape. See
+- **A sample of real files is published in full** — six backend services, a
+  statistics controller, two complete Flutter feature packages, the app's
+  profile screen and its localization strings in nine languages — so the
+  actual code can be judged, not just its shape. See
   [Published in full here](#published-in-full-here).
 - **A second, larger module is published in full in its own repository:**
   **[pdaftar-shopping-list](https://github.com/parmonov98/pdaftar-shopping-list)** —
@@ -502,6 +502,7 @@ The only edit is noted in the table.
 | [`backend/app/Services/Client/ClientImportColumnMatcher.php`](backend/app/Services/Client/ClientImportColumnMatcher.php) | 162 | Recognises uz / ru / en spreadsheet headers ("Mijoz telefoni", "Имя", "Qarz summasi") during client import |
 | [`backend/app/Services/Dashboard/TimePeriodService.php`](backend/app/Services/Dashboard/TimePeriodService.php) | 190 | Daily / weekly / monthly / yearly bucketing for dashboard charts |
 | [`backend/app/Services/HeifAuxReferenceSanitizer.php`](backend/app/Services/HeifAuxReferenceSanitizer.php) | 194 | Byte-level HEIF patch that makes iOS 18 photos readable by libheif 1.17 |
+| [`backend/app/Http/Controllers/Statistics/ProductStatisticsController.php`](backend/app/Http/Controllers/Statistics/ProductStatisticsController.php) | 317 | The Statistika → Mahsulotlar API: product, daily-sales, sales-report and incoming-goods (kirim) statistics. Every method checks that the caller belongs to the shop and holds `view-product-statistics` |
 | [`mobile/packages/pdaftar_sales_calc/`](mobile/packages/pdaftar_sales_calc/) | 5,617 | Multi-line sales calculator package — 25 Dart files, including tests |
 | [`mobile/packages/pdaftar_todo/`](mobile/packages/pdaftar_todo/) | 1,067 | Task list package — 13 Dart files |
 | [`mobile/lib/presantation/pages/profile/`](mobile/lib/presantation/pages/profile/) | 18,585 | The owner's profile and settings screen: account, wallet and SMS balance, referrals, devices, printers, notifications, theme and language — 83 Dart files; 1,115 of the lines are generated (`freezed`) |
@@ -510,7 +511,7 @@ The only edit is noted in the table.
 The third package, `pdaftar_shopping_list`, is published separately as
 [pdaftar-shopping-list](https://github.com/parmonov98/pdaftar-shopping-list).
 
-Everything else stays withheld: controllers, authentication, payments,
+Everything else stays withheld: the other controllers, authentication, payments,
 configuration, migrations and anything that touches customer data.
 
 ### The SMS parts calculator
