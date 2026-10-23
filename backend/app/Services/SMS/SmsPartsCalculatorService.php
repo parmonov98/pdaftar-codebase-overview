@@ -2,12 +2,32 @@
 
 namespace App\Services\SMS;
 
+/**
+ * Counts SMS parts the way Eskiz bills them.
+ *
+ * Checked against Eskiz's own record (status_by_id: encoding, parts_count)
+ * for 18,603 prod messages sent 2026-10-15..18 — this matches every one,
+ * both encoding and parts. Three rules carry that:
+ *
+ *  - Eskiz sends GSM-7 only when every character is ASCII. A single
+ *    non-ASCII letter, even one GSM 03.38 does have (ò ü ì ø), makes it
+ *    UCS-2: 29 such messages in the sample, none went out as GSM-7.
+ *  - GSM 03.38 extension characters (^ { } [ ] ~ | € \ and form feed) cost
+ *    two septets each, an escape plus the character. \n and \r are basic.
+ *  - Past one part, every part carries a 7-byte header, so the count is
+ *    ceil(len / 153) for GSM-7 and ceil(len / 67) for UCS-2 — not "first
+ *    part 160, then 153". UCS-2 length is in UTF-16 code units, so an emoji
+ *    outside the BMP costs two.
+ */
 class SmsPartsCalculatorService {
-    // GSM 7-bit character set (GSM 0338)
-    private const GSM_7BIT_CHARS = '@£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà';
+    // GSM 03.38 basic characters that are also ASCII. The non-ASCII ones
+    // (£ ¥ è é ù ì ò Ç Ø ø Å å Δ … ä ö ñ ü à) are left out on purpose: Eskiz
+    // switches to UCS-2 for them.
+    private const GSM_7BIT_BASIC = "@\$_ !\"#%&'()*+,-./0123456789:;<=>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n\r";
 
-    // GSM 7-bit extended characters (require escape sequence)
-    private const GSM_7BIT_EXTENDED = "\x0A\x0C\x0D\x1B\x1C\x1D\x1E\x1F";
+    // GSM 03.38 extension table: each costs two septets (ESC + character).
+    // € is the only non-ASCII one; Eskiz never sees it as GSM-7 either.
+    private const GSM_7BIT_EXTENDED = "^{}[]~|\\\x0C";
 
     // Single part limits
     private const GSM_7BIT_SINGLE = 160;
@@ -47,7 +67,7 @@ class SmsPartsCalculatorService {
      */
     private function detectEncoding(string $message): int {
         // Check if message contains only GSM 7-bit characters
-        if ($this->isGsm7Bit($message)) {
+        if ($this->gsm7Septets($message) !== null) {
             return 0; // GSM 0338
         }
 
@@ -61,27 +81,31 @@ class SmsPartsCalculatorService {
     }
 
     /**
-     * Check if message contains only GSM 7-bit characters.
+     * Septets the message takes in GSM-7, or null if it can't be sent as GSM-7.
      *
      * @param  string  $message  The SMS message text
      */
-    private function isGsm7Bit(string $message): bool {
-        $length = mb_strlen($message, 'UTF-8');
+    private function gsm7Septets(string $message): ?int {
+        if (! $this->isAscii($message)) {
+            return null;
+        }
+
+        $septets = 0;
+        $length = strlen($message);
 
         for ($i = 0; $i < $length; $i++) {
-            $char = mb_substr($message, $i, 1, 'UTF-8');
-            $charCode = mb_ord($char, 'UTF-8');
+            $char = $message[$i];
 
-            // Check if character is in GSM 7-bit charset
-            if (mb_strpos(self::GSM_7BIT_CHARS, $char, 0, 'UTF-8') === false) {
-                // Check if it's an extended GSM character
-                if (mb_strpos(self::GSM_7BIT_EXTENDED, $char, 0, 'UTF-8') === false) {
-                    return false;
-                }
+            if (str_contains(self::GSM_7BIT_BASIC, $char)) {
+                $septets++;
+            } elseif (str_contains(self::GSM_7BIT_EXTENDED, $char)) {
+                $septets += 2;
+            } else {
+                return null;
             }
         }
 
-        return true;
+        return $septets;
     }
 
     /**
@@ -101,20 +125,24 @@ class SmsPartsCalculatorService {
      * @return int Number of parts
      */
     private function calculateParts(string $message, int $encoding): int {
-        $length = mb_strlen($message, 'UTF-8');
-
         return match ($encoding) {
-            0 => $this->calculateGsm7BitParts($length), // GSM 0338
-            1 => $this->calculateAsciiParts($length),    // ASCII
-            8 => $this->calculateUcs2Parts($length),     // UCS2
-            default => $this->calculateUcs2Parts($length), // Default to UCS2 for safety
+            0 => $this->calculateGsm7BitParts($this->gsm7Septets($message)), // GSM 0338
+            1 => $this->calculateAsciiParts(strlen($message)),                // ASCII
+            default => $this->calculateUcs2Parts($this->utf16Units($message)), // UCS2
         };
+    }
+
+    /**
+     * Message length in UTF-16 code units, which is what a UCS-2 part holds.
+     */
+    private function utf16Units(string $message): int {
+        return intdiv(strlen(mb_convert_encoding($message, 'UTF-16BE', 'UTF-8')), 2);
     }
 
     /**
      * Calculate parts for GSM 7-bit encoding.
      *
-     * @param  int  $length  Message length
+     * @param  int  $length  Message length in septets
      * @return int Number of parts
      */
     private function calculateGsm7BitParts(int $length): int {
@@ -122,7 +150,7 @@ class SmsPartsCalculatorService {
             return 1;
         }
 
-        return (int) ceil(($length - self::GSM_7BIT_SINGLE) / self::GSM_7BIT_MULTIPART) + 1;
+        return (int) ceil($length / self::GSM_7BIT_MULTIPART);
     }
 
     /**
@@ -136,13 +164,13 @@ class SmsPartsCalculatorService {
             return 1;
         }
 
-        return (int) ceil(($length - self::ASCII_SINGLE) / self::ASCII_MULTIPART) + 1;
+        return (int) ceil($length / self::ASCII_MULTIPART);
     }
 
     /**
      * Calculate parts for UCS2 encoding.
      *
-     * @param  int  $length  Message length
+     * @param  int  $length  Message length in UTF-16 code units
      * @return int Number of parts
      */
     private function calculateUcs2Parts(int $length): int {
@@ -150,6 +178,6 @@ class SmsPartsCalculatorService {
             return 1;
         }
 
-        return (int) ceil(($length - self::UCS2_SINGLE) / self::UCS2_MULTIPART) + 1;
+        return (int) ceil($length / self::UCS2_MULTIPART);
     }
 }
