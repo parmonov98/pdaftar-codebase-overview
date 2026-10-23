@@ -19,10 +19,10 @@ This is **not** the pDaftar source code. It is a **structural overview** of it.
   **[`mobile/STRUCTURE.md`](mobile/STRUCTURE.md)**, which list every directory
   that holds source — **895 of them**, at full depth — with how many files and
   lines each actually contains in production. Nothing is invented.
-- **A sample of real files is published in full** — six backend services, a
-  statistics controller, two complete Flutter feature packages, the app's
-  profile screen and its localization strings in nine languages — so the
-  actual code can be judged, not just its shape. See
+- **A sample of real files is published in full** — six backend services, two
+  statistics controllers with their routes, two complete Flutter feature
+  packages, the app's profile screen and its localization strings in nine
+  languages — so the actual code can be judged, not just its shape. See
   [Published in full here](#published-in-full-here).
 - **A second, larger module is published in full in its own repository:**
   **[pdaftar-shopping-list](https://github.com/parmonov98/pdaftar-shopping-list)** —
@@ -492,7 +492,7 @@ and [Google Play](https://play.google.com/store/apps/details?id=uz.app.pdaftaruz
 
 These files are copied unchanged from the production repositories (backend
 `main` at `779ad563`, mobile `main` at `c9968ce3`), at the same paths they have there.
-The only edit is noted in the table.
+The only edit, and the one excerpt, are noted in the table.
 
 | File | Lines | What it is |
 | --- | ---: | --- |
@@ -503,6 +503,8 @@ The only edit is noted in the table.
 | [`backend/app/Services/Dashboard/TimePeriodService.php`](backend/app/Services/Dashboard/TimePeriodService.php) | 190 | Daily / weekly / monthly / yearly bucketing for dashboard charts |
 | [`backend/app/Services/HeifAuxReferenceSanitizer.php`](backend/app/Services/HeifAuxReferenceSanitizer.php) | 194 | Byte-level HEIF patch that makes iOS 18 photos readable by libheif 1.17 |
 | [`backend/app/Http/Controllers/Statistics/ProductStatisticsController.php`](backend/app/Http/Controllers/Statistics/ProductStatisticsController.php) | 317 | The Statistika → Mahsulotlar API: product, daily-sales, sales-report and incoming-goods (kirim) statistics. Every method checks that the caller belongs to the shop and holds `view-product-statistics` |
+| [`backend/app/Http/Controllers/Monitoring/EmployeeTransactionFeedController.php`](backend/app/Http/Controllers/Monitoring/EmployeeTransactionFeedController.php) | 73 | The Statistika → Xodimlar API: wages accrued and paid. Checks shop membership and the `view-employees` permission |
+| [`backend/routes/mobile_api.statistics-excerpt.php`](backend/routes/mobile_api.statistics-excerpt.php) | 72 | **Excerpt** of `routes/mobile_api.php`: the routes for the two statistics controllers above, inside their real middleware groups. Omitted lines are marked with their production line numbers |
 | [`mobile/packages/pdaftar_sales_calc/`](mobile/packages/pdaftar_sales_calc/) | 5,617 | Multi-line sales calculator package — 25 Dart files, including tests |
 | [`mobile/packages/pdaftar_todo/`](mobile/packages/pdaftar_todo/) | 1,067 | Task list package — 13 Dart files |
 | [`mobile/lib/presantation/pages/profile/`](mobile/lib/presantation/pages/profile/) | 18,585 | The owner's profile and settings screen: account, wallet and SMS balance, referrals, devices, printers, notifications, theme and language — 83 Dart files; 1,115 of the lines are generated (`freezed`) |
