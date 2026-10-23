@@ -19,9 +19,10 @@ This is **not** the pDaftar source code. It is a **structural overview** of it.
   **[`mobile/STRUCTURE.md`](mobile/STRUCTURE.md)**, which list every directory
   that holds source — **895 of them**, at full depth — with how many files and
   lines each actually contains in production. Nothing is invented.
-- **One module is included in full** —
-  [`backend/app/Services/SMS/SmsPartsCalculatorService.php`](backend/app/Services/SMS/SmsPartsCalculatorService.php) —
-  so the actual code can be judged, not just its shape.
+- **A sample of real files is published in full** — six backend services, two
+  complete Flutter feature packages and the app's localization strings in nine
+  languages — so the actual code can be judged, not just its shape. See
+  [Published in full here](#published-in-full-here).
 - **A second, larger module is published in full in its own repository:**
   **[pdaftar-shopping-list](https://github.com/parmonov98/pdaftar-shopping-list)** —
   a complete 11,200-line Flutter feature package, the real contents of
@@ -486,20 +487,47 @@ lines across the base class and four locale files). Ships to both
 [the App Store](https://apps.apple.com/uz/app/pdaftar-business-and-finance/id6511237681)
 and [Google Play](https://play.google.com/store/apps/details?id=uz.app.pdaftaruz).
 
-## The module published in full here
+## Published in full here
+
+These files are copied unchanged from the production repositories (backend
+`main` at `779ad563`, mobile `main` at `c9968ce3`), at the same paths they have there.
+The only edit is noted in the table.
+
+| File | Lines | What it is |
+| --- | ---: | --- |
+| [`backend/app/Services/SMS/SmsPartsCalculatorService.php`](backend/app/Services/SMS/SmsPartsCalculatorService.php) | 183 | GSM 03.38 encoding detection and SMS part counting — described below |
+| [`backend/app/Services/SMS/SmsTextNormalizerService.php`](backend/app/Services/SMS/SmsTextNormalizerService.php) | 175 | Folds smart quotes, Uzbek `ʻ` and invisible characters onto GSM 7-bit so a message isn't billed as UCS-2. *Customer and record IDs in comments replaced with neutral wording.* |
+| [`backend/app/Services/Client/ClientNameTransliterator.php`](backend/app/Services/Client/ClientNameTransliterator.php) | 90 | Uzbek Cyrillic → Latin for client names, with the positional `е`/`ц` rules |
+| [`backend/app/Services/Client/ClientImportColumnMatcher.php`](backend/app/Services/Client/ClientImportColumnMatcher.php) | 162 | Recognises uz / ru / en spreadsheet headers ("Mijoz telefoni", "Имя", "Qarz summasi") during client import |
+| [`backend/app/Services/Dashboard/TimePeriodService.php`](backend/app/Services/Dashboard/TimePeriodService.php) | 190 | Daily / weekly / monthly / yearly bucketing for dashboard charts |
+| [`backend/app/Services/HeifAuxReferenceSanitizer.php`](backend/app/Services/HeifAuxReferenceSanitizer.php) | 194 | Byte-level HEIF patch that makes iOS 18 photos readable by libheif 1.17 |
+| [`mobile/packages/pdaftar_sales_calc/`](mobile/packages/pdaftar_sales_calc/) | 5,617 | Multi-line sales calculator package — 25 Dart files, including tests |
+| [`mobile/packages/pdaftar_todo/`](mobile/packages/pdaftar_todo/) | 1,067 | Task list package — 13 Dart files |
+| [`mobile/lib/service/localization/l10n/`](mobile/lib/service/localization/l10n/) | — | The app's ARB string files: Uzbek, Russian, English, Karakalpak, Kazakh, Kyrgyz, Tajik, Turkish, Arabic |
+
+The third package, `pdaftar_shopping_list`, is published separately as
+[pdaftar-shopping-list](https://github.com/parmonov98/pdaftar-shopping-list).
+
+Everything else stays withheld: controllers, authentication, payments,
+configuration, migrations and anything that touches customer data.
+
+### The SMS parts calculator
 
 **[`backend/app/Services/SMS/SmsPartsCalculatorService.php`](backend/app/Services/SMS/SmsPartsCalculatorService.php)**
 
 SMS billing depends on knowing how many message *parts* a body splits into
 before it is sent, and that depends on which encoding the carrier picks. This
-implements the GSM 03.38 rules:
+counts parts the way the SMS provider (Eskiz) actually bills them. It was
+checked against the provider's own records for 18,603 production messages and
+matched every one:
 
-- **Encoding detection** — GSM 7-bit (0) → ASCII (1) → UCS-2 (8), in that order
-  of preference, testing against the GSM 7-bit charset including the
-  escape-sequence extended set.
-- **Part counting** — 160 characters for a single GSM 7-bit part but 153 per
-  part once concatenated (the UDH header consumes the difference); 70 and 67
-  for UCS-2.
+- **Encoding detection** — GSM 7-bit only when every character is ASCII,
+  otherwise UCS-2. The provider sends GSM 03.38 letters such as `ü` or `ø` as
+  UCS-2, so the calculator does too.
+- **Part counting** — GSM 03.38 extension characters (`^ { } [ ] ~ | \`) cost
+  two septets each. A single part holds 160 septets; past that, each part holds
+  153 (the UDH header takes the difference). UCS-2 is 70 and 67, counted in
+  UTF-16 code units, so an emoji outside the BMP costs two.
 
 The UCS-2 case is the one that matters here: customers write in Uzbek and
 Russian, and a single Cyrillic character or a `ʻ` in `Toshkent shahri` drops the
